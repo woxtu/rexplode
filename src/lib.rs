@@ -6,5 +6,10 @@ pub fn explode(pattern: &str) -> Result<Vec<String>, Error> {
 }
 
 fn convert(ast: &Ast) -> Vec<String> {
-  unimplemented!()
+  use Ast::*;
+
+  match ast {
+    Empty(_) => vec![],
+    _ => unimplemented!(),
+  }
 }
