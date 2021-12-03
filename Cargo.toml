@@ -1,0 +1,11 @@
+[package]
+name = "rexplode"
+version = "0.1.0"
+edition = "2021"
+authors = ["woxtu <woxtup@gmail.com>"]
+description = "Generate strings from the given regular expression"
+readme = "README.md"
+repository = "https://github.com/woxtu/rexplode"
+license = "MIT"
+
+[dependencies]
