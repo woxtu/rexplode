@@ -23,3 +23,9 @@ fn test_literals() {
 fn test_dot() {
   assert_eq!(explode("."), Ok(vec![".".to_string()]));
 }
+
+#[test]
+fn test_assertions() {
+  assert_eq!(explode("^"), Ok(vec!["^".to_string()]));
+  assert_eq!(explode(r"\A"), Ok(vec![r"\A".to_string()]));
+}
