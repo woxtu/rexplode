@@ -10,6 +10,7 @@ fn convert(ast: &Ast) -> Vec<String> {
 
   match ast {
     Empty(_) => vec![],
+    Flags(_) => vec![ast.to_string()],
     _ => unimplemented!(),
   }
 }
