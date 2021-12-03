@@ -11,6 +11,11 @@ fn convert(ast: &Ast) -> Vec<String> {
   match ast {
     Empty(_) => vec![],
     Flags(_) => vec![ast.to_string()],
+    Literal(literal) => vec![format_literal(literal)],
     _ => unimplemented!(),
   }
+}
+
+fn format_literal(Literal { c, .. }: &Literal) -> String {
+  c.to_string()
 }
