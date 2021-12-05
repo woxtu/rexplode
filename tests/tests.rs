@@ -65,3 +65,13 @@ fn test_classes() {
   assert_eq!(explode("[^[a]]"), Ok(vec!["[^[a]]".to_string()]));
   assert_eq!(explode("[^a-cd]"), Ok(vec!["[^a-cd]".to_string()]));
 }
+
+#[test]
+fn test_class_operators() {
+  assert_eq!(explode("[a-c&&b-d]"), Ok(vec!["b".to_string(), "c".to_string()]));
+  assert_eq!(explode("[a-c--b-d]"), Ok(vec!["a".to_string()]));
+  assert_eq!(explode("[a-c~~b-d]"), Ok(vec!["a".to_string(), "d".to_string()]));
+  assert_eq!(explode("[^a-c&&b-d]"), Ok(vec!["[^a-c&&b-d]".to_string()]));
+  assert_eq!(explode("[^a-c--b-d]"), Ok(vec!["[^a-c--b-d]".to_string()]));
+  assert_eq!(explode("[^a-c~~b-d]"), Ok(vec!["[^a-c~~b-d]".to_string()]));
+}

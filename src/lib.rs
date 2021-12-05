@@ -28,12 +28,19 @@ fn convert_class(class: &Class) -> Vec<String> {
 }
 
 fn convert_class_bracketed(bracketed @ ClassBracketed { negated, kind, .. }: &ClassBracketed) -> Vec<String> {
+  if *negated {
+    vec![format_class_bracketed(bracketed)]
+  } else {
+    convert_class_set(kind)
+  }
+}
+
+fn convert_class_set(set: &ClassSet) -> Vec<String> {
   use ClassSet::*;
 
-  match kind {
-    Item(_) if *negated => vec![format_class_bracketed(bracketed)],
+  match set {
     Item(item) => convert_class_set_item(item),
-    _ => unimplemented!(),
+    BinaryOp(op) => convert_class_set_binary_op(op),
   }
 }
 
@@ -54,6 +61,23 @@ fn convert_class_set_range(ClassSetRange { start, end, .. }: &ClassSetRange) -> 
 
 fn convert_class_set_union(ClassSetUnion { items, .. }: &ClassSetUnion) -> Vec<String> {
   items.iter().flat_map(convert_class_set_item).collect()
+}
+
+fn convert_class_set_binary_op(ClassSetBinaryOp { kind, lhs, rhs, .. }: &ClassSetBinaryOp) -> Vec<String> {
+  use ClassSetBinaryOpKind::*;
+
+  let lhs = convert_class_set(lhs);
+  let rhs = convert_class_set(rhs);
+  match kind {
+    Intersection => rhs.into_iter().filter(|x| lhs.contains(x)).collect(),
+    Difference => lhs.into_iter().filter(|x| !rhs.contains(x)).collect(),
+    SymmetricDifference => Iterator::chain(
+      lhs.iter().filter(|x| !rhs.contains(x)),
+      rhs.iter().filter(|x| !lhs.contains(x)),
+    )
+    .cloned()
+    .collect(),
+  }
 }
 
 fn format_literal(Literal { c, .. }: &Literal) -> String {
@@ -123,16 +147,16 @@ fn format_class_perl(ClassPerl { kind, negated, .. }: &ClassPerl) -> String {
 }
 
 fn format_class_bracketed(ClassBracketed { negated, kind, .. }: &ClassBracketed) -> String {
+  format!("[{}{}]", if *negated { "^" } else { "" }, format_class_set(kind),)
+}
+
+fn format_class_set(set: &ClassSet) -> String {
   use ClassSet::*;
 
-  format!(
-    "[{}{}]",
-    if *negated { "^" } else { "" },
-    match kind {
-      Item(item) => format_class_set_item(item),
-      _ => unimplemented!(),
-    }
-  )
+  match set {
+    Item(item) => format_class_set_item(item),
+    BinaryOp(op) => format_class_set_binary_op(op),
+  }
 }
 
 fn format_class_set_item(item: &ClassSetItem) -> String {
@@ -156,4 +180,14 @@ fn format_class_set_range(ClassSetRange { start, end, .. }: &ClassSetRange) -> S
 
 fn format_class_set_union(ClassSetUnion { items, .. }: &ClassSetUnion) -> String {
   items.iter().map(format_class_set_item).collect()
+}
+
+fn format_class_set_binary_op(ClassSetBinaryOp { kind, lhs, rhs, .. }: &ClassSetBinaryOp) -> String {
+  use ClassSetBinaryOpKind::*;
+
+  match kind {
+    Intersection => format!("{}&&{}", format_class_set(lhs), format_class_set(rhs)),
+    Difference => format!("{}--{}", format_class_set(lhs), format_class_set(rhs)),
+    SymmetricDifference => format!("{}~~{}", format_class_set(lhs), format_class_set(rhs)),
+  }
 }
