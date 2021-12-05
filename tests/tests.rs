@@ -29,3 +29,39 @@ fn test_assertions() {
   assert_eq!(explode("^"), Ok(vec!["^".to_string()]));
   assert_eq!(explode(r"\A"), Ok(vec![r"\A".to_string()]));
 }
+
+#[test]
+fn test_classes() {
+  assert_eq!(explode(r"\pL"), Ok(vec![r"\pL".to_string()]));
+  assert_eq!(explode(r"\PL"), Ok(vec![r"\PL".to_string()]));
+  assert_eq!(explode(r"\p{Greek}"), Ok(vec![r"\p{Greek}".to_string()]));
+  assert_eq!(explode(r"\P{Greek}"), Ok(vec![r"\P{Greek}".to_string()]));
+  assert_eq!(explode(r"\p{foo=bar}"), Ok(vec![r"\p{foo=bar}".to_string()]));
+  assert_eq!(explode(r"\P{foo=bar}"), Ok(vec![r"\P{foo=bar}".to_string()]));
+  assert_eq!(explode(r"\d"), Ok(vec![r"\d".to_string()]));
+  assert_eq!(explode(r"\D"), Ok(vec![r"\D".to_string()]));
+  assert_eq!(explode("[a]"), Ok(vec!["a".to_string()]));
+  assert_eq!(
+    explode("[a-c]"),
+    Ok(vec!["a".to_string(), "b".to_string(), "c".to_string()])
+  );
+  assert_eq!(explode("[[:alnum:]]"), Ok(vec!["[:alnum:]".to_string()]));
+  assert_eq!(explode("[[:^alnum:]]"), Ok(vec!["[:^alnum:]".to_string()]));
+  assert_eq!(explode(r"[\pL]"), Ok(vec![r"\pL".to_string()]));
+  assert_eq!(explode(r"[\p{Greek}]"), Ok(vec![r"\p{Greek}".to_string()]));
+  assert_eq!(explode(r"[\p{foo=bar}]"), Ok(vec![r"\p{foo=bar}".to_string()]));
+  assert_eq!(explode(r"[\d]"), Ok(vec![r"\d".to_string()]));
+  assert_eq!(explode("[[a]]"), Ok(vec!["a".to_string()]));
+  assert_eq!(
+    explode("[a-cd]"),
+    Ok(vec!["a".to_string(), "b".to_string(), "c".to_string(), "d".to_string()])
+  );
+  assert_eq!(explode("[^a]"), Ok(vec!["[^a]".to_string()]));
+  assert_eq!(explode("[^a-c]"), Ok(vec!["[^a-c]".to_string()]));
+  assert_eq!(explode("[^[:alnum:]]"), Ok(vec!["[^[:alnum:]]".to_string()]));
+  assert_eq!(explode(r"[^\pL]"), Ok(vec![r"[^\pL]".to_string()]));
+  assert_eq!(explode(r"[^\p{Greek}]"), Ok(vec![r"[^\p{Greek}]".to_string()]));
+  assert_eq!(explode(r"[^\d]"), Ok(vec![r"[^\d]".to_string()]));
+  assert_eq!(explode("[^[a]]"), Ok(vec!["[^[a]]".to_string()]));
+  assert_eq!(explode("[^a-cd]"), Ok(vec!["[^a-cd]".to_string()]));
+}
