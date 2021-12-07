@@ -88,3 +88,11 @@ fn test_repetitions() {
     Ok(vec!["".to_string(), "a".to_string(), "aa".to_string()])
   );
 }
+
+#[test]
+fn test_groups() {
+  assert_eq!(explode("(a)"), Ok(vec!["a".to_string()]));
+  assert_eq!(explode("(?P<name>a)"), Ok(vec!["a".to_string()]));
+  assert_eq!(explode("(?:a)"), Ok(vec!["a".to_string()]));
+  assert_eq!(explode("(?i:a)"), Ok(vec!["a".to_string()]));
+}

@@ -15,6 +15,7 @@ fn convert(ast: &Ast) -> Vec<String> {
     Literal(literal) => vec![format_literal(literal)],
     Class(class) => convert_class(class),
     Repetition(repetition) => convert_repetition(repetition),
+    Group(group) => convert_group(group),
     _ => unimplemented!(),
   }
 }
@@ -109,6 +110,10 @@ fn convert_repetition_range(ast: &Ast, m: u32, n: u32) -> Vec<String> {
         .collect(),
     })
     .collect()
+}
+
+fn convert_group(Group { ast, .. }: &Group) -> Vec<String> {
+  convert(ast)
 }
 
 fn format_literal(Literal { c, .. }: &Literal) -> String {
