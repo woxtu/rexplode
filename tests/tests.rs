@@ -96,3 +96,12 @@ fn test_groups() {
   assert_eq!(explode("(?:a)"), Ok(vec!["a".to_string()]));
   assert_eq!(explode("(?i:a)"), Ok(vec!["a".to_string()]));
 }
+
+#[test]
+fn test_alternations() {
+  assert_eq!(explode("a|b"), Ok(vec!["a".to_string(), "b".to_string()]));
+  assert_eq!(
+    explode("a|b|c"),
+    Ok(vec!["a".to_string(), "b".to_string(), "c".to_string()])
+  );
+}
