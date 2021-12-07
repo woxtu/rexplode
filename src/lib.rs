@@ -1,3 +1,4 @@
+use itertools::Itertools;
 use regex_syntax::ast::*;
 
 pub fn explode(pattern: &str) -> Result<Vec<String>, Error> {
@@ -13,6 +14,7 @@ fn convert(ast: &Ast) -> Vec<String> {
     Flags(_) | Dot(_) | Assertion(_) => vec![ast.to_string()],
     Literal(literal) => vec![format_literal(literal)],
     Class(class) => convert_class(class),
+    Repetition(repetition) => convert_repetition(repetition),
     _ => unimplemented!(),
   }
 }
@@ -78,6 +80,35 @@ fn convert_class_set_binary_op(ClassSetBinaryOp { kind, lhs, rhs, .. }: &ClassSe
     .cloned()
     .collect(),
   }
+}
+
+fn convert_repetition(Repetition { op, ast, .. }: &Repetition) -> Vec<String> {
+  use RepetitionKind::*;
+  use RepetitionRange::*;
+
+  match op.kind {
+    ZeroOrOne => convert_repetition_range(ast, 0, 1),
+    ZeroOrMore => convert(ast).into_iter().map(|x| format!("{}*", x)).collect(),
+    OneOrMore => convert(ast).into_iter().map(|x| format!("{}+", x)).collect(),
+    Range(Exactly(m)) => convert_repetition_range(ast, m, m),
+    Range(AtLeast(m)) => convert(ast).into_iter().map(|x| format!("{}{{{},}}", x, m)).collect(),
+    Range(Bounded(m, n)) => convert_repetition_range(ast, m, n),
+  }
+}
+
+fn convert_repetition_range(ast: &Ast, m: u32, n: u32) -> Vec<String> {
+  let v = convert(ast);
+  (m..=n)
+    .flat_map(|i| match i {
+      0 => vec!["".to_string()],
+      1 => v.clone(),
+      _ => vec![v.clone(); i as _]
+        .into_iter()
+        .multi_cartesian_product()
+        .map(|x| x.join(""))
+        .collect(),
+    })
+    .collect()
 }
 
 fn format_literal(Literal { c, .. }: &Literal) -> String {

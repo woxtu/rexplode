@@ -75,3 +75,16 @@ fn test_class_operators() {
   assert_eq!(explode("[^a-c--b-d]"), Ok(vec!["[^a-c--b-d]".to_string()]));
   assert_eq!(explode("[^a-c~~b-d]"), Ok(vec!["[^a-c~~b-d]".to_string()]));
 }
+
+#[test]
+fn test_repetitions() {
+  assert_eq!(explode("a?"), Ok(vec!["".to_string(), "a".to_string()]));
+  assert_eq!(explode("a*"), Ok(vec!["a*".to_string()]));
+  assert_eq!(explode("a+"), Ok(vec!["a+".to_string()]));
+  assert_eq!(explode("a{2}"), Ok(vec!["aa".to_string()]));
+  assert_eq!(explode("a{2,}"), Ok(vec!["a{2,}".to_string()]));
+  assert_eq!(
+    explode("a{0,2}"),
+    Ok(vec!["".to_string(), "a".to_string(), "aa".to_string()])
+  );
+}
