@@ -17,7 +17,7 @@ fn convert(ast: &Ast) -> Vec<String> {
     Repetition(repetition) => convert_repetition(repetition),
     Group(group) => convert_group(group),
     Alternation(alternation) => convert_alternation(alternation),
-    _ => unimplemented!(),
+    Concat(concat) => convert_concat(concat),
   }
 }
 
@@ -119,6 +119,15 @@ fn convert_group(Group { ast, .. }: &Group) -> Vec<String> {
 
 fn convert_alternation(Alternation { asts, .. }: &Alternation) -> Vec<String> {
   asts.iter().flat_map(convert).collect()
+}
+
+fn convert_concat(Concat { asts, .. }: &Concat) -> Vec<String> {
+  asts
+    .iter()
+    .map(convert)
+    .multi_cartesian_product()
+    .map(|x| x.join(""))
+    .collect()
 }
 
 fn format_literal(Literal { c, .. }: &Literal) -> String {
