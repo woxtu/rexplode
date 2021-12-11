@@ -112,3 +112,9 @@ fn test_concatenations() {
   assert_eq!(explode("a[bc]"), Ok(vec!["ab".to_string(), "ac".to_string()]));
   assert_eq!(explode("ab?"), Ok(vec!["a".to_string(), "ab".to_string()]));
 }
+
+#[test]
+fn test_unique_output() {
+  assert_eq!(explode("a|a"), Ok(vec!["a".to_string()]));
+  assert_eq!(explode("[aa]"), Ok(vec!["a".to_string()]));
+}

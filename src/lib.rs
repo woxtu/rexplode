@@ -67,7 +67,7 @@ fn convert_class_set_range(ClassSetRange { start, end, .. }: &ClassSetRange) -> 
 }
 
 fn convert_class_set_union(ClassSetUnion { items, .. }: &ClassSetUnion) -> Vec<String> {
-  items.iter().flat_map(convert_class_set_item).collect()
+  items.iter().flat_map(convert_class_set_item).unique().collect()
 }
 
 fn convert_class_set_binary_op(ClassSetBinaryOp { kind, lhs, rhs, .. }: &ClassSetBinaryOp) -> Vec<String> {
@@ -121,7 +121,7 @@ fn convert_group(Group { ast, .. }: &Group) -> Vec<String> {
 }
 
 fn convert_alternation(Alternation { asts, .. }: &Alternation) -> Vec<String> {
-  asts.iter().flat_map(convert).collect()
+  asts.iter().flat_map(convert).unique().collect()
 }
 
 fn convert_concat(Concat { asts, .. }: &Concat) -> Vec<String> {
