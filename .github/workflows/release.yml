@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        build: [linux, macos-x86_64, macos-aarch64, windows]
+        include:
+          - build: linux
+            os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+          - build: macos-x86_64
+            os: macos-latest
+            target: x86_64-apple-darwin
+          - build: macos-aarch64
+            os: macos-latest
+            target: aarch64-apple-darwin
+          - build: windows
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Set up contexts
+        id: info
+        run: |
+          version="${GITHUB_REF#refs/tags/}"
+          asset_dir="${{ github.event.repository.name }}-${version}-${{ matrix.target }}"
+          echo "::set-output name=version::${version}"
+          echo "::set-output name=asset_dir::${asset_dir}"
+          echo "::set-output name=asset_name::${asset_dir}.zip"
+        shell: bash
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+          override: true
+          target: ${{ matrix.target }}
+      - name: Build
+        run: cargo build --release --target=${{ matrix.target }} --verbose
+      - name: Archive files
+        if: matrix.build == 'linux' || startsWith(matrix.build, 'macos')
+        run: |
+          mkdir ${{ steps.info.outputs.asset_dir }}
+          cp target/${{ matrix.target }}/release/${{ github.event.repository.name }} README.md LICENSE ${{ steps.info.outputs.asset_dir }}
+          zip ${{ steps.info.outputs.asset_name }} -r ${{ steps.info.outputs.asset_dir }}
+      - name: Archive files
+        if: matrix.build == 'windows'
+        run: |
+          mkdir ${{ steps.info.outputs.asset_dir }}
+          cp target/${{ matrix.target }}/release/${{ github.event.repository.name }}.exe README.md LICENSE ${{ steps.info.outputs.asset_dir }}
+          7z a ${{ steps.info.outputs.asset_name }} ${{ steps.info.outputs.asset_dir }}
+        shell: bash
+      - uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          tag_name: ${{ steps.info.outputs.version }}
+          files: ${{ steps.info.outputs.asset_name }}
