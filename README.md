@@ -1,5 +1,7 @@
 # rexplode
 
+[![Crates.io](https://img.shields.io/crates/v/rexplode?style=flat-square)](https://crates.io/crates/rexplode)
+
 Generate strings from the given regular expression.
 
 ```console
@@ -21,6 +23,18 @@ Number 6
 |Composites|`ab` `a\|b`|
 |Repetitions|`a?` `a{2}` `a{0,2}`|
 |Groups|`(a)` `(?:a)`|
+
+## Installation
+
+Download the binary from the release page:
+
+https://github.com/woxtu/rexplode/releases
+
+Or install with Cargo:
+
+```console
+$ cargo install rexplode
+```
 
 ## License
 
