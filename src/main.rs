@@ -31,8 +31,12 @@ fn print_version() {
 }
 
 fn print_strings(pattern: &str) -> Result<()> {
+  use std::io::{self, BufWriter, Write};
+
+  let out = io::stdout();
+  let mut out = BufWriter::new(out.lock());
   for result in explode(pattern)? {
-    println!("{}", result)
+    writeln!(out, "{}", result)?
   }
 
   Ok(())
