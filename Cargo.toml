@@ -9,5 +9,6 @@ repository = "https://github.com/woxtu/rexplode"
 license = "MIT"
 
 [dependencies]
+anyhow = "1.0.51"
 itertools = "0.10.1"
 regex-syntax = "0.6.25"

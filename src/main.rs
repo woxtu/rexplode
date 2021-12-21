@@ -1,3 +1,4 @@
+use anyhow::Result;
 use rexplode::explode;
 
 fn print_help() {
@@ -29,22 +30,21 @@ fn print_version() {
   )
 }
 
-fn print_strings(pattern: &str) {
-  match explode(pattern) {
-    Ok(results) => {
-      for result in results {
-        println!("{}", result)
-      }
-    }
-    Err(error) => eprintln!("{}", error),
+fn print_strings(pattern: &str) -> Result<()> {
+  for result in explode(pattern)? {
+    println!("{}", result)
   }
+
+  Ok(())
 }
 
-fn main() {
+fn main() -> Result<()> {
   match std::env::args().nth(1) {
     Some(pattern) if pattern == "-h" || pattern == "--help" => print_help(),
     Some(pattern) if pattern == "-V" || pattern == "--version" => print_version(),
-    Some(pattern) => print_strings(&pattern),
+    Some(pattern) => print_strings(&pattern)?,
     None => print_help(),
   }
+
+  Ok(())
 }
